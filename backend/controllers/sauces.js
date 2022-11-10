@@ -46,9 +46,12 @@ exports.putOneSauce = (req, res, next) => {
         if (sauce.userId != req.auth.userId) {
             res.status(401).json({message: 'Authorization error'})
         } else {
+            const filename = sauce.imageUrl.split('/images/')[1];
+            fs.unlink(`./images/${filename}`, () => {
             Sauce.updateOne({_id: req.params.id}, {...sauceObj, _id: req.params.id})
                 .then(() => res.status(200).json({message: 'Sauce updated successfully'}))
                 .catch(err => res.status(401).json(err))
+            })
         }
     })
     .catch(err => res.status(400).json({err}));
@@ -66,7 +69,7 @@ exports.deleteOneSauce = (req, res, next) => {
             res.status(401).json({message: 'Authorization error'})
         } else {
             const filename = sauce.imageUrl.split('/images/')[1];
-            fs.unlink(`images/${filename}`, () => {
+            fs.unlink(`./images/${filename}`, () => {
                 Sauce.deleteOne({_id: req.params.id})
                 .then(() => res.status(200).json({message: 'Object deleted successfully'}))
                 .catch(err => res.status(400).json({err}));
@@ -75,8 +78,6 @@ exports.deleteOneSauce = (req, res, next) => {
     })
     .catch(err => res.status(500).json({err}))
 };
-
-//compléter les logiques métier
 
 exports.postOneSauceLike = (req, res, next) => {
     const likeValue = req.body.like
