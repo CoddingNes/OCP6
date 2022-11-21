@@ -78,7 +78,10 @@ exports.postOneSauceLike = (req, res, next) => {
     Sauce.findOne({ _id: req.params.id })
         .then((sauce) => {
             if (likeValue == 1) {
-                if (!sauce.usersLiked.includes(userId)) {
+                //si l'utilisateur a déjà liké ou disliké, on ne lui autorise pas de liké
+                if (sauce.usersLiked.includes(req.auth.userId) || sauce.usersDisliked.includes(req.auth.userId)) {
+                    res.status(400).json({ message: "Vous ne pouvez pas liké car vous avez déjà liké ou disliké la sauce !" })
+                } else {
                     //Ajouter userId dans usersLiked[] et incrémenter Likes
                     sauce.usersLiked.push(userId)
                     sauce.likes += 1
@@ -87,7 +90,10 @@ exports.postOneSauceLike = (req, res, next) => {
                         .catch(err => res.status(400).json({ err }));
                 }
             } else if (likeValue == -1) {
-                if (!sauce.usersDisliked.includes(userId)) {
+                //si l'utilisateur a déjà liké ou disliké, on ne lui autorise pas de liké
+                if (sauce.usersLiked.includes(req.auth.userId) || sauce.usersDisliked.includes(req.auth.userId)) {
+                    res.status(400).json({ message: "Vous ne pouvez pas liké car vous avez déjà liké ou disliké la sauce !" })
+                } else {
                     //Ajouter userId dans usersDisliked[] et incrémenter Dislikes
                     sauce.usersDisliked.push(userId)
                     sauce.dislikes += 1
