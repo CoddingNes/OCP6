@@ -78,19 +78,23 @@ exports.postOneSauceLike = (req, res, next) => {
     Sauce.findOne({ _id: req.params.id })
         .then((sauce) => {
             if (likeValue == 1) {
-                //Ajouter userId dans usersLiked[] et incrémenter Likes
-                sauce.usersLiked.push(userId)
-                sauce.likes += 1
-                Sauce.updateOne({ _id: req.params.id }, { usersLiked: sauce.usersLiked, likes: sauce.likes, _id: req.params.id })
-                    .then(() => res.status(200).json({ message: 'Likes updated successfully' }))
-                    .catch(err => res.status(400).json({ err }));
+                if (!sauce.usersLiked.includes(userId)) {
+                    //Ajouter userId dans usersLiked[] et incrémenter Likes
+                    sauce.usersLiked.push(userId)
+                    sauce.likes += 1
+                    Sauce.updateOne({ _id: req.params.id }, { usersLiked: sauce.usersLiked, likes: sauce.likes, _id: req.params.id })
+                        .then(() => res.status(200).json({ message: 'Likes updated successfully' }))
+                        .catch(err => res.status(400).json({ err }));
+                }
             } else if (likeValue == -1) {
-                //Ajouter userId dans usersDisliked[] et incrémenter Dislikes
-                sauce.usersDisliked.push(userId)
-                sauce.dislikes += 1
-                Sauce.updateOne({ _id: req.params.id }, { usersDisliked: sauce.usersDisliked, dislikes: sauce.dislikes, _id: req.params.id })
-                    .then(() => res.status(200).json({ message: 'Dislikes updated successfully' }))
-                    .catch(err => res.status(400).json({ err }));
+                if (!sauce.usersDisliked.includes(userId)) {
+                    //Ajouter userId dans usersDisliked[] et incrémenter Dislikes
+                    sauce.usersDisliked.push(userId)
+                    sauce.dislikes += 1
+                    Sauce.updateOne({ _id: req.params.id }, { usersDisliked: sauce.usersDisliked, dislikes: sauce.dislikes, _id: req.params.id })
+                        .then(() => res.status(200).json({ message: 'Dislikes updated successfully' }))
+                        .catch(err => res.status(400).json({ err }));
+                }
             } else {
                 //Trouver userId dans usersDisliked ou usersLiked et le retirer, décrémenter l'élément correspondant
                 const isUserId = (element) => element == userId;
